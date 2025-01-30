@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">The Mitkov algorithm for anaphora resolution in Portuguese</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<title level="a" type="main">The Mitkov algorithm for anaphora resolution in Portuguese</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">486D07E39A4F0F05D5C3C35B99A6E160</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.7.2" ident="GROBID" when="2023-04-03T19:27+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>Pronoun resolution, anaphora resolution</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper reports on the use of the Mitkov´s algorithm for pronoun resolution in texts written in Brazilian Portuguese. Third person pronouns are the only ones focused upon here, with noun phrases as antecedents. A system for anaphora resolution in Brazilian Portuguese texts was built that embeds most of the Mitkov's features. Some of his resolution factors were directly incorporated into the system; others had to be slightly modified for language adequacy. The resulting approach was intrinsically evaluated on hand-annotated corpora. It was also compared to Lappin &amp; Leass's algorithm for pronoun resolution, also customized to Portuguese. Success rate was the evaluation measure used in both experiments. The results of both evaluations are discussed here.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>A major problem in Natural Language Processing (NLP) is to recognize or build text segments that convey coherent information. Amongst the linguistic devices for that, referential cohesion is one of the most significant ones for acknowledging, and guaranteeing, coherence. In this paper we address such a phenomenon in the interpretation scenario: we aim at identifying cohesive mechanisms that help automatically resolving referential links. Anaphoricity is the only linguistic construction under focus here, and so is pronoun resolution (PR). An anaphoric pronoun signals a relationship between two or more text components that share with each other their meanings. When anaphoric, it comes after its antecedent referent in the text, which is usually a noun phrase (NP). An example follows 1 :</p><p>(1) O parlamentar i , porém, é alvo de acusação em outro escândalo. Ele i será investigado sobre as denúncias de corrupção (...).</p><p>[The member of the parliament] i , however, is enrolled as guilty in other scandal. He i will be investigated on the corruption accusations (…).</p><p>Above, the pronoun Ele (He) is an anaphor whose antecedent is the NP O parlamentar (The member of the parliament). This conveys, thus, a full meaning, whilst the pronoun itself is issued the NP meaning. Differently from this, other types of anaphors also may be used, e.g., the generalization introduced by the NP 'the corruption accusations'. This type of anaphor involves ontological associations and other referential links (e.g., 'other scandal' enables the plural 'accusations'). Usually, ontological referential links do not entail the same meaning, but similar meanings that make them connect to each other. Contrarily, anaphoric pronouns convey no meaning, but their antecedent ones. So, to resolve the anaphoric Ele above, retrieving the former NP is of utmost importance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>1</head><p>In this paper, all the examples have been extracted from a Brazilian Portuguese corpus of authored texts. Their literal English translations are supplied for readability.</p><p>PR may be very complex when there are many antecedent candidates. To resolve that, varied linguistic features may be needed, involving morphologic, syntactic, semantic, or pragmatic processing. In this line, several computational approaches have been undertaken for English or Spanish. Examples of the former are those by <ref type="bibr" target="#b6">(Hobbs, 1978)</ref>, <ref type="bibr" target="#b7">(Lappin &amp; Leass, 1994)</ref>, <ref type="bibr" target="#b9">(Mitkov, 1998)</ref>, and <ref type="bibr" target="#b0">(Bergsma &amp; Lin, 2006)</ref>; an example of the latter is the work by <ref type="bibr" target="#b11">(Palomar et al., 2001)</ref>. There are few approaches to Brazilian Portuguese (BP), namely, modified versions of <ref type="bibr">Lappin &amp; Leass' algorithm (Coelho, 2005)</ref> and Hobbs' model <ref type="bibr" target="#b14">(Santos &amp; Carvalho, 2007)</ref>, and another that uses heterogeneous knowledge for PR <ref type="bibr" target="#b12">(Paraboni, 1997)</ref>. We adopted Mitkov's model for the following reasons: (1) it has been explored for several languages and it has proved to be both language-independent and portable; (2) it is heuristicsbased and does not depend upon deep knowledge. Instead, it applies surface or empirical information to determine candidate antecedents of an anaphor. It also adopts usual parsing and morphological preprocessing tools, which are largely available for most languages currently explored in NLP, and so they are for BP. In our implementation, Mitkov's original algorithm has been modified to handle only 3 rd person pronouns that convey NPs as antecedents. An antecedent NP may be in the very same sentence as the anaphor (intrasentential PR) or in a different sentence (inter-sentential PR).</p><p>Mitkov introduces the so-called anaphora resolution factors, which are of two types.</p><p>Restrictive factors signal properties that must be presented by the antecedent candidates, in order for them to resolve the anaphor. Those candidates that do not present such properties are thus discarded. Oppositely, preferential factors do not discard candidates; just classify them according to their likelihood of resolving the anaphor the best. Usually, the latter factors are applied in conjunction with the former: classification takes place only after filtering those potential candidates through factors that are restrictive. The highest the probability of a candidate, the more likely it is to be indicated as the antecedent of the anaphor under focus.</p><p>In what follows, we first present Mitkov's proposal for anaphora resolution (Section 2), then we introduce our approach for PR in BP (Section 3). In Section 4 we describe our PR assessment. Final remarks are presented in Section 5.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">The Mitkov's algorithm</head><p>In pursuing a knowledge-poor approach, Mitkov avoids complex syntactic and semantic constructions by adopting a set of heuristics -the antecedent indicators -that are capable of pinpointing potential antecedents of an anaphor based on surface indicators. First, the text under focus is preprocessed through parsing and extracting NPs. Then, the following steps take place: (1) at most two previous sentences to the anaphor are examined, as the referential context for its antecedent NP. The result is a set of NPs. (2) to narrow the number of candidate NPs, gender and number concordance with the anaphor is verified and potential NPs are excluded, resulting in a smaller candidate set, or the set of potential antecedents. (3) Each potential NP is thus scored for the likelihood of being the antecedent of the anaphor. First, each antecedent indicator allows issuing the NP an integer value ranging from -1 to 2. Then such values are summed up for the final NP score. The highest scored NP in the set of potential candidates is finally chosen as the antecedent. In a tie case, the closest candidate to the anaphor is chosen instead.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Adapting Mitkov's algorithm for PR in Brazilian Portuguese</head><p>In adapting Mitkov's algorithm for BP, we named our system RAPM, for Resolução Anafórica do Português baseada no algoritmo de Mitkov (Anaphora Resolution for Portuguese based on Mitkov's algorithm). RAPM differs from the original algorithm in that it has been specifically drawn to BP. Also, and most importantly, its input texts are only automatically annotated, which is not the case in Mitkov's approach, because its morphosyntactic annotations are manually corrected before going into anaphora resolution itself. A third distinction concerns the way preprocessing is undertaken in RAPM: currently it has not yet been integrated in RAPM, for practical reasons, as we shall describe in Section 4. Finally, to resolve morphological dependencies RAPM looks up an XML file that conveys correct information on gender and number of proper nouns and the antecedent search scope is of three sentences, instead of two. The XML file includes every proper noun found in the input corpus of texts and aims at minimizing pre-processing problems: in the absence of such information, they would be assigned both genders and numbers.</p><p>RAPM proceeds, thus, in the following way: it identifies the NPs that appear previously to the pronouns using the three-sentence window, then it produces the set of potential NP candidates in the same way as Mitkov's model does. As already mentioned, antecedent indicators may endorse or prevent an NP candidate of being the antecedent of a pronoun. In the former case, the sum total is positive; in the latter, it is negative. Only five out of eleven antecedent indicators by Mitkov were incorporated into RAPM, along with three others that we found interesting to add, as follows the last three are the novel ones:</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>First NP (FNP).</head><p>A +1 score is issued to the first NP of each sentence. This heuristic may be either justified on syntactic, or on communication terms, in that human beings usually express meanings through distinct language levels. According to Mitkov, for example, in declarative sentences the FNP occupies the subject position. In the absence of a parse tree, theories of both communication and discourse organization might help determining which should be such FNP, provided that they signaled the underlying communicative or discourse structure of the focused text. If Centering Theory <ref type="bibr" target="#b5">(Grosz et al., 1995)</ref> were considered, e.g., the FNP would be the actual center of the sentence. Conversely, if <ref type="bibr" target="#b15">(Ventura &amp; Lima-Lopes, 2002)</ref> or <ref type="bibr" target="#b3">(Firbas, 1992)</ref> were used, the corresponding given-new or thematic-rhematic information should signal that. In either case, given-new or theme-rheme units could provide coreferential links as do a first NP and a pronoun, at the text surface. It is worthwhile to notice that, since declarative sentences convey a default discourse organization, the theme/given unit can be the very NP occupying the subject position, as pinpointed before.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Lexical Reiteration (LR).</head><p>A +2 score is issued to NPs that occur twice or more within the search scope; a +1 score is issued to an NP otherwise. LR assumes that a greater score signals NPs that are more salient and, thus, more likely to be the anaphor antecedent than those that score less. In RAPM reiterated lexical items are identified through direct string matching.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Indefinite NP (INP).</head><p>Indefinite NPs are assigned a -1 score because very often they are supposed to be less likely to be antecedents of pronominal anaphors than definite ones <ref type="bibr" target="#b10">(Mitkov, 1997)</ref>. RAPM regards an NP as definite if its nucleus is modified by a definite article or by demonstrative or possessive pronouns.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Prepositional NP (PNP).</head><p>A -1 score is issued to those NPs that occur in a prepositional phrase. Such a demoting score may be justified by the Centering Theory <ref type="bibr" target="#b5">(Grosz et al., 1995)</ref>: the sentence main constituents are classified according to their salience (e.g., subject, direct, and indirect objects in this decreasing salience order) and the most salient units provide the center of a text segment. Moreover, a sentence center is more likely to be a candidate antecedent of an anaphor than an NP occurring in a prepositional phrase sentences.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Referential Distance (RD).</head><p>This antecedent indicator may promote or demote a candidate according to its distance from the anaphor: NPs in the immediate antecedent clause, in the very same sentence as the anaphor, are scored +2; NPs in the previous sentence are scored +1; NPs in a sentence that is two sentences apart from that of the anaphor are scored 0; NPs still farther than those are scored -1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Syntactic Parallelism (SP).</head><p>A +1 score is issued to an NP that conveys the same syntactic function as the corresponding anaphor.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Nearest NP (NNP).</head><p>A positive +1 score is issued to the nearest NP to the anaphor. This indicator is used as a baseline by Mitkov, and so it is in RAPM, in which case it corresponds to the so-called 'Baseline_NP'<ref type="foot" target="#foot_0">2</ref> .</p><p>Proper Noun (PN). Proper nouns are scored +1 in RAPM because they occurred with relative frequency as anaphors antecedents in our corpus. The assumption behind such a score was that promoting PNs could improve PR performance.</p><p>Using the above antecedent indicators to resolve pronouns in BP aims only at predicting the language behavior concerning PR, and not at constraining automatic PR to them. For this reason, Mitkov called them preference factors: they are not intended to be definite, but deductible. Although such indicators may punctuate anaphor antecedents incorrectly, usually PR is improved when they are used altogether, as we shall show when we apply them to BP, in Section 4.</p><p>Adding the indicators SP, NNP, and PN to RAPM resulted from a corpus analysis that aimed at filtering out those Mitkov's antecedent factors that didn't apply to BP. Thus, they were chosen for the following reasons: (a) since the input texts to RAPM are already morphosyntactically annotated, syntactic parallelism (SP) could be readily verified; (b) a nearest NP (NNP) to the anaphoric pronoun tended to be its antecedent; (c) proper nouns (PN) were highly frequent in the corpus as anaphor antecedents. So, using them should be advantageous for PR in RAPM.</p><p>Excluding the remaining six Mitkov's indicators from RAPM was due to their inadequacy to the corpus under focus in our work. For example, the original indicator 'Section heading preference' did not apply to our corpus, which conveys only non-structured or non-titled texts. Amongst RAPM eight indicators, two are restrictive (INP and PNP) and one (RD) may be either restrictive our preferential, for its possibility of assigning negative or positive values to a candidate. The remaining indicators are preferential. As illustration of the RAPM processing, consider the journalistic text segment (2).</p><p>(2) O flúor fortifica o esmalte, uma espécie de capa protetora dos dentes. Com a difusão de seu uso, outro problema surgiu: a fluorose, o excesso de flúor no organismo. Afinal, a substância i não se encontra apenas em cremes dentais: ela i também está presente em diversos alimentos (...).</p><p>The fluorine fortifies the enamel, a sort of protective cape of the teeth. With the diffusion of his use, another problem appeared: the fluorosis, the excess of fluor in the organism. At last, the substance i is not only in toothpastes: she i also is present in several foods (...).</p><p>For the text (2), the described algorithm generate the set of potential candidates (NP) with agree in gender and number {G,N}<ref type="foot" target="#foot_1">3</ref> with the anaphor ela (she){F,S} as (NP 1 : [uma espécie de capa protetora dos dentes]{F, S}, NP 2 : [capa protetora dos dentes]{F,S }, NP 3 : [a difusão de seu uso]{F,S}, NP 4 : [a fluorose] {F, S} NP 5 : [a substância]{F, S}.</p><p>The last stage of PR assigns the scores positive or negative to the NP candidates. In Table <ref type="table">1</ref> are presented the scores associated to the 5 NPs previous, organized them of descending form by his scores.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>NP candidate FNP LR SP NNP PN INP PNP RD</head><formula xml:id="formula_0">∑ NP 5 0 0 1 0 0 0 0 1 2 NP 4 0 0 0 0 0 0 0 0 0 NP 3 0 0 0 0 0 0 -1 0 -1 NP 1 0 0 0 0 0 -1 0 -1 -2 NP 2 0 0 0 0 0 -1 -1 -1 -3</formula><p>Table <ref type="table">1</ref> : Assigned scores by antecedent indicators in PR process</p><p>The noun phrase (NP 5 ), a substância (the substance), is selected as antecedent for anaphor ela (she) due to his biggest total score indicated in the column (∑ = 2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Assessing RAPM</head><p>We adopted the success rate measure <ref type="bibr" target="#b8">(Mitkov, 2002)</ref> to assess RAPM. It is defined as the ratio between the total number of correctly resolved anaphors and the total number of anaphors that are present in the whole corpus of texts. Having the input texts previously annotated for anaphors by human experts was, thus, of utmost importance here: such a corpus is a reference corpus.</p><p>According to Mitkov, the success rate should mirror exactly the performance of the anaphora resolver itself, with no interference of any problem resulting from preprocessing. He emphasizes that the real success rate of a system may only be achieved if the input data are correct. So, he corrects by hand any possible annotation of the input texts that have been wrongly morphosyntactically tagged, as previously mentioned. However reasonable his arguments may be, although the current version of RAPM does not have an integrated preprocessing module (both working in pipeline instead), we consider such pre-editing unrealistic. So, we did not apply any correction procedure to our input data, aiming at a more realistic black box approach in the future. More importantly, we already consider PR to be fully automated, as if we had just plain texts as input. A possible drawback of this is that miss-annotated data may contribute negatively to the PR performance, as we shall discuss below.</p><p>In assessing RAPM, we used three corpora of distinct genres -the ones also adopted by <ref type="bibr" target="#b2">(Coelho, 2005)</ref>: a law, a literary, and a newswire one. The law corpus is composed of 16 Portuguese Attorney General documents (c.a. 110,610 words; 260 3 rd person pronominal anaphors) and most texts convey long and complex sentences. The literary corpus, also conveying complex sentences, consists of the whole book 'O alienista', by the Brazilian author Machado de Assis (c.a. 16,530 words; 573 3 rd person pronominal anaphors). The newswire corpus is composed by 14 texts of the Veja magazine (c.a. 13,217 words; 222 3 rd person anaphoric pronouns) and it conveys simpler sentences than the others.</p><p>Our comparison with Coelho's approach <ref type="bibr" target="#b2">(Coelho, 2005)</ref> was due to the lack of comprehensive assessments on BP for anaphora resolution: his was the only one that used success rate as the evaluation measure in a more comprehensive way and, apart from the law corpus, his corpora aimed at a general readership, oppositely to the others, which were more domain-dependent, such as <ref type="bibr" target="#b12">(Paraboni, 1997)</ref>. The extra gain in adopting his corpora was that we did not have to preprocess our data, since Coelho had it all done. We even did not have to re-run Coelho's system: we entirely reproduced his experimental setting. This allowed us decide to keep preprocessing apart from RAPM. Actually, we just used the files that were formerly automatically annotated by Coelho as input to RAPM. His tags provide morphosyntactic information resulting from the PALAVRAS parser <ref type="bibr" target="#b1">(Bick, 2000)</ref> and coreferential annotation. This has been manually carried out with the support of the MMAX tool <ref type="bibr" target="#b11">(Müller &amp; Strube, 2001)</ref>. Additionally, the Xtractor tool <ref type="bibr" target="#b4">(Gasperin et al., 2003)</ref> was used to convert the output by PALAVRAS in XML files.</p><p>RAPM assessment consisted of comparing the file of each text of the reference corpus with the corresponding file generated automatically by the system. This file, also in XML, contains all the tags that identify both anaphoric pronouns and their corresponding antecedents. Figures <ref type="figure" target="#fig_0">1 and 2</ref> depict a record of each file concerning example (1) given in Section 1. For assessment purposes, an anaphor is considered correctly resolved either if the automatic solution is identical to the manual one or if it is an NP that is the nucleus or part of the nucleus of the NP manually annotated. Acknowledging either case has been manual. RAPM assessment was undertaken in three different ways: firstly, we measured the average success rate of each system depicted above, when running on the newswire corpus (Table <ref type="table">2</ref>).</p><p>The strategy with the best success rate (RAPM_8) was then used in two other experiments: we compared its performance with the results by <ref type="bibr" target="#b2">(Coelho, 2005)</ref> (Table <ref type="table">3</ref>) and finally we used again RAPM_8 results on the newswire corpus, but to compare it with two distinct baselines, namely, 'Baseline-NP' and 'Baseline_Subj' (Table <ref type="table" target="#tab_0">4</ref>). In this last case, we used the same baselines as did Mitkov in <ref type="bibr" target="#b8">(Mitkov, 2002)</ref>. Baseline-NP pinpoints as the antecedent the closest NP to the pronoun, provided that the NP agrees in gender and number with the pronoun. Baseline_Subj adds to the Baseline-NP a third constraint: the antecedent NP must occupy the subject position in the sentence it occurs. The results of each assessment follow, in a decreasing success rate order. As shows Table <ref type="table">2</ref>, RAPM_8 was the system that had the best average success rate (67%). So, it was the only system used in the other two experiments. Although RAPM_8 performed better in the overall assessment, its use may be questionable because the system that was classified the second, RAPM_3, presented a close success rate (66%) using much fewer antecedent indicators. This result suggests that using impeditive indicators, i.e., INP and PNP, may well help resolving pronouns in BP, when newswire texts are considered, and is less costly. Even RAPM_6_NNP, which reached the 3 rd best av. success rate, also performs closely to RAPM_8, and demands less indicators. Comparing the 3 versions RAPM_6, adding NNP to the original 5 indicators seems to be the only one that may slightly improve the success rate. Still, it does improve on RAPM_5 in 4 perceptual points. Comparing now the success rates of our eight systems with those by Coelho, ours were consistently superior: 43,56% by Coelho, against our worst case for RAPM_6_SP (60,26%), for the newswire corpus. If we consider only RAPM_8, the outperforming is even more expressive: for the same corpus, RAPM_8 scored an average of 67,01% success rate. Even for the other corpora RAPM_8 expressively beat Coelho's system. The third comparison, between RAPM_8 and the two baselines, also confirms RAPM_8 superiority.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>RAPM version</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Final Remarks</head><p>Given the results presented above, it is clear that adapting Mitkov's algorithm for pronoun resolution in Brazilian Portuguese is promising, even having it modified for suitability due to language differences. Actually, our RAPM_8 version conveys not only the 5 indicators inherited from that approach, but the ones we introduced. This may be a novel and contributing feature for resolving anaphoric pronouns in BP. Moreover, having 8 distinct versions of RAPM shows that any of the proposed combinations considerably outperforms the baseline procedures, when dealing with BP. All our systems are even more suitable than the one based on Lappin &amp; Leass model, at least in what concerns the corpora explored here. Most importantly, our assessment was quite comprehensive, if we consider the varied combinations of antecedent indicators.</p><p>Concerning the original approach by Mitkov (89,7% av. success rate), we could crudely say that RAPM_8 still has a significant room for improvement. However, it is important to notice that achieving that high rate has been possible because human expertise and hard man-work has been provided to feed the system with correct input data. This contrasts very deeply with our strategy, which aims at getting bare texts and resolving its pronominal anaphors entirely automatically. RAPM_8 performance is even more understandable when we notice that there was an expressive noise introduced by automatic morphosyntactic annotation. The main errors generated in that phase included wrong morphological annotations of both NPs and pronouns, which generated information that was certainly crucial for the low success rate for PR. During the pronoun resolution itself, an expressive problem was that of accusing pronoun antecedents that were not NPs. RAPM was not tailored to deal with such cases, even when such antecedents were correct. So, it is very likely that overcoming such obstacles will improve RAPM performance. A deeper evaluation of the impact of the errors presented by RAPM_8 as a result of pre-processing shall be carried out in that direction. Also, verifying the adequacy of the values assigned to each case and each antecedent indicator is relevant. However, this is not straightforward to accomplish, for it involves scaling up the same method of linguistic analysis that we carried out, which was entirely dependent upon human expertise. It also involves considering other corpus-based means to verify the indicators adequacy. Moreover, having RAPM_8, which conveys all the antecedent indicators considered, as the best system for PR in BP, does not entitle us to say that RAPM_8 will work well when other data are used. There are many other ways of exploring further the present results, including verifying which combination of the values the indicators can assign to an NP would be more profitable. Aiming at this seems quite reasonable, since our approach is entirely empirical. However, it is not less complex: we could have too many combinations of values and features to investigate. So, considering other, statistical methods to pinpoint a more reliable feature combination should be also applicable.</p><p>In tuning the system, we could also consider other features, such as other syntactic filters, ccommand constraints <ref type="bibr" target="#b13">(Reinhart, 1983)</ref>, or even the use of the Center Theory. Finally, we could also carry out a previous hand-editing of the input data, as did Mitkov, to certify that the input to our explored RAPM versions would not be significantly responsible for the PR problems. In such a case, we should solve first the preprocessing problems and turn back to reengineering the system. Overall, RAPM may be useful for several NLP applications, including Automatic Summarization and Information Retrieval, which are the ones focused more closely in our research. By resolving anaphoric pronouns, automatically generated summaries may be more cohesive and, thus, more coherent. Using heuristics especially driven to deal with BP phenomena will certainly bring about interesting contributions to such applications.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1 : Snapshot of the reference file conveying example (1) annotation</figDesc><graphic coords="6,76,38,608,22,442,50,52,50" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 4 :</head><label>4</label><figDesc>Comparison between RAPM_8 and baseline strategies</figDesc><table><row><cell></cell><cell>Success rate (%)</cell></row><row><cell>RAPM_8</cell><cell>67,01</cell></row><row><cell>RAPM_3</cell><cell>66,02</cell></row><row><cell>RAPM_6_NNP</cell><cell>64,94</cell></row><row><cell>RAPM_6_PN</cell><cell>63,40</cell></row><row><cell>RAPM_2</cell><cell>62,50</cell></row><row><cell>RAPM_5</cell><cell>61,45</cell></row><row><cell>RAPM_4</cell><cell>61,21</cell></row><row><cell>RAPM_6_SP</cell><cell>60,26</cell></row><row><cell cols="2">Table 2 : Overall assessment</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0">Baselines are used for assessment and will be described in Section 4.</note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_1">{Gender, Number}: F-Femme, M-Male; S-Singular, P-Plural.</note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Bootstrapping path-based pronoun resolution</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bergsma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">COLING-ACL 2006</title>
+				<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="33" to="40" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">The parsing system PALAVRAS: automatic grammatical analysis of Portuguese in a constraint grammar framework</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Bick</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<pubPlace>Århus</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Århus University</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Ph.D. thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Resolução de anáfora pronominal em português utilizando o algoritmo de Lappin e Leass</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">T</forename><surname>Coelho</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+		</imprint>
+		<respStmt>
+			<orgName>University of Campinas</orgName>
+		</respStmt>
+	</monogr>
+	<note>Master`s thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Functional sentence perspective in written and spoken communication</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Firbas</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<publisher>Cambridge University Press</publisher>
+			<pubPlace>Cambridge</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Extracting XML chunks from portuguese corpora</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">V</forename><surname>Gasperin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Vieira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">R V</forename><surname>Goulart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Quaresma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the workshop on traitement automaticque dês langues ninoritaries</title>
+				<meeting>the workshop on traitement automaticque dês langues ninoritaries<address><addrLine>Batz-sur-Mer</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Centering: a framework for modeling the local coherence of discourse</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">J</forename><surname>Grosz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">K</forename><surname>Joshi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Weinstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational linguistics</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page" from="203" to="225" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Resolving pronoun references</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Hobbs</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Lingua</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="page" from="311" to="338" />
+			<date type="published" when="1978">1978</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">An algorithm for pronominal anaphora resolution</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lappin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">J</forename><surname>Leass</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational linguistics</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="535" to="561" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mitkov</surname></persName>
+		</author>
+		<title level="m">Anaphora resolution. Longman</title>
+				<imprint>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Robust pronoun resolution with limited knowledge</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mitkov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">COLING-ACL 1998</title>
+				<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="869" to="875" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Factors in anaphora resolution: they are not the only things that matter. A case study based on two different approaches</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mitkov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACL-EACL 1997 Workshop on operational factors in practical</title>
+				<imprint>
+			<date type="published" when="1997">1997</date>
+			<biblScope unit="page" from="14" to="21" />
+		</imprint>
+	</monogr>
+	<note>Robust anaphora resolution</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">MMAX: a tool for the annotation of multi-modal corpora.The 2nd IJCAI Workshop on knowledge and reasoning in practical dialogue systems</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Müller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Strube</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Palomar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Moreno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Peral</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Muñoz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fernández</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Martínez-Barco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Saiz-Noeda</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational linguistics</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="545" to="567" />
+			<date type="published" when="2001">2001. 2001</date>
+		</imprint>
+	</monogr>
+	<note>An algorithm for anaphora resolution in spanish texts</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Uma arquitetura para a resolução de referências pronominais possessivas no processamento de textos em língua portuguesa</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Paraboni</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<pubPlace>PUC, Rio Grande do Sul</pubPlace>
+		</imprint>
+	</monogr>
+	<note type="report_type">Master&apos;s thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Anaphora and semantic interpretation</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Reinhart</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1983">1983</date>
+			<publisher>Croom Helm</publisher>
+			<pubPlace>London</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Hobbs&apos; algorithm for pronoun resolution in portuguese. 6th. MICAI</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">N A</forename><surname>Santos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M B R</forename><surname>Carvalho</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in artificial intelligence</title>
+		<imprint>
+			<biblScope unit="volume">4827</biblScope>
+			<biblScope unit="page" from="966" to="974" />
+			<date type="published" when="2007">2007. 2007</date>
+			<publisher>Springer-Verlag</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">S M</forename><surname>Ventura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">E</forename><surname>Lima-Lopes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">O tema: caracterização e realização em Português</title>
+				<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="page" from="1" to="18" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>
