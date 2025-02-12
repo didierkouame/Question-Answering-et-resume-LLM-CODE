@@ -1,6 +1,6 @@
 # Question Answering et Résumé avec Vertex AI et LangChain
 
-Ce dépôt contient plusieurs expérimentations autour du **question answering (QA)** et du **résumé automatique**, en utilisant **Vertex AI**, **LangChain** et **FAISS**.
+Ce dépôt contient plusieurs expérimentations autour du **question answering (QA)** et du **résumé automatique** avec LLM, en utilisant **Vertex AI**, **LangChain** et **FAISS**.
 Les codes ont été exécutés dans un environnement Python configuré pour Vertex AI sur Google Cloud. 
 
 ## Contenu du dépôt
