@@ -1,0 +1,12 @@
+Ce document traite de la distinction entre les documents textuels nativement numériques et les documents numérisés, en mettant l'accent sur l'impact du support (numérique ou physique) sur le contenu.
+
+**Points clés:**
+
+*   **Documents nativement numériques:** Définis comme des documents textuels numériques où le texte et ses propriétés (structure, police, couleur, etc.) sont entièrement représentés de manière textuelle (ex: plain text, JSON, XML). Même les retranscriptions de textes non-numériques sont considérées comme nativement numériques si elles répondent à ce critère.
+*   **Documents numérisés:** Documents textuels consultables sur support électronique où au moins une partie des données textuelles ne répond pas aux critères d'un document nativement numérique (ex: PDF où le texte n'est pas sélectionnable, image d'une page de texte).
+*   **Importance du support:** Le support (numérique ou physique) influence le document en imposant des contraintes et en offrant des possibilités différentes. La numérisation peut entraîner une perte de données, la création de métadonnées ou la modification du contenu (ex: passage d'un glyphe à un caractère).
+*   **Exemple d'erreurs de numérisation:** Le document cite des erreurs fréquentes rencontrées lors de la numérisation, telles que des caractères insérés en début ou fin de page, des codes d'échappement XML et des problèmes d'espacement. Ces erreurs sont souvent dues à une mauvaise reconnaissance des zones de texte ou à la mauvaise qualité du document d'origine.
+
+**Ouvertures:**
+
+Le document ouvre la voie à une étude de l'accessibilité à l'information contenue dans ces différents types de documents. Il soulève des questions sur la manière dont la numérisation affecte la qualité et l'intégrité du contenu textuel, et comment les erreurs de numérisation peuvent être détectées et corrigées. Il suggère également une réflexion sur la manière d'encoder le texte de manière à préserver au maximum l'information d'origine.

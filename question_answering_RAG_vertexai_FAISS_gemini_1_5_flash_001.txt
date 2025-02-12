@@ -1,0 +1,27 @@
+Ce document explore la distinction entre les documents textuels nativement numériques et les documents numérisés. 
+
+**Documents nativement numériques:**
+
+* Ce sont des documents textuels créés et stockés directement sous forme numérique. 
+* Le texte et ses propriétés (structure, police, couleur, etc.) sont entièrement représentés de manière textuelle.
+* Exemples : fichiers texte brut, JSON, XML.
+
+**Documents numérisés:**
+
+* Ce sont des documents textuels qui ont été convertis d'un format physique (papier) vers un format numérique.
+* Au moins une partie des données textuelles ne répond pas aux critères d'un document nativement numérique.
+* Exemples : documents PDF où le texte n'est pas directement sélectionnable, images de pages de texte.
+
+**Différences clés:**
+
+* Les documents nativement numériques sont conçus pour être numériques, tandis que les documents numérisés sont des conversions de documents physiques.
+* Les documents numérisés peuvent perdre des informations (images, métadonnées) ou en créer de nouvelles (ajout de métadonnées).
+* Le support (physique ou numérique) influence le document en imposant des contraintes et des possibilités spécifiques.
+
+**Ouvertures:**
+
+* Le document ouvre la discussion sur l'accessibilité à l'information contenue dans les documents numérisés.
+* Il soulève la question de la qualité des conversions numériques et des erreurs potentielles (mauvaise reconnaissance de caractères, problèmes d'espacement).
+* Il met en lumière l'importance de la distinction entre les deux types de documents pour comprendre les défis et les opportunités liés à l'utilisation du numérique.
+
+**En résumé, le document établit une distinction claire entre les documents nativement numériques et les documents numérisés, soulignant les différences essentielles entre ces deux types de documents et les implications pour l'accès à l'information.** 
