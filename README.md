@@ -23,9 +23,6 @@ Les codes ont été exécutés dans un environnement Python configuré pour Vert
 - **taln-2008-long-001.pdf.tei.xml** : Document utilisé pour tester le QA dans Question-Answering_Extractive.ipynb.
 - **capture_python_vertex_ai_terminal.png** : Capture d'écran des tests réalisés dans le terminal.
 
-## ⚡ Expérimentations en cours
-- **L'évaluation des modèles pour la tâche de QA (question answering) est à venir**.
-
 ## 🛠 Technologies utilisées
 - **Vertex AI** (Gemini 1.5 Flash, Gemini 2.0 Flash, Gemini 1.5 Pro)
 - **LangChain** (gestion des chaînes de récupération et traitement des documents)
